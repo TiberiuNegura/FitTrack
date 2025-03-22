@@ -1,6 +1,6 @@
-package centurionii.WorkoutService.repos;
+package centurionii.UserService.repo;
 
-import centurionii.WorkoutService.entities.WeightUpdate;
+import centurionii.UserService.entity.WeightUpdate;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

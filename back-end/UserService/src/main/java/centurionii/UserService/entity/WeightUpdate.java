@@ -1,4 +1,4 @@
-package centurionii.WorkoutService.entities;
+package centurionii.UserService.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -11,9 +11,7 @@ public class WeightUpdate {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private AppUser user;
+    private Long userId;
 
     private int month;
     private int day;
@@ -23,9 +21,8 @@ public class WeightUpdate {
 
     public WeightUpdate() {}
 
-    public WeightUpdate(AppUser appUser, int month, int day, int year, float newWeightValue)
-    {
-        this.user = appUser;
+    public WeightUpdate(Long userId, int month, int day, int year, float newWeightValue) {
+        this.userId = userId;
         this.month = month;
         this.day = day;
         this.year = year;

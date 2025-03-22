@@ -1,8 +1,10 @@
-package centurionii.WorkoutService.services;
+package centurionii.UserService.service;
 
+import centurionii.UserService.entity.WeightUpdate;
 import centurionii.WorkoutService.entities.WeightUpdate;
 import centurionii.WorkoutService.repos.WeightUpdateRepository;
-import com.example.demo.model.utils.ObjectMapper;
+import centurionii.WorkoutService.utils.ObjectMapper;
+import centurionii.WorkoutService.utils.dto.WeightUpdateRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,22 @@ public class WeightUpdateService {
     @Autowired
     public WeightUpdateService(WeightUpdateRepository weightUpdateRepository) {
         this.weightUpdateRepository = weightUpdateRepository;
+    }
+
+    public Optional<WeightUpdate> save(WeightUpdateRequest request) {
+        try {
+            WeightUpdate weightUpdate = new WeightUpdate(
+                    request.userId(),
+                    request.month(),
+                    request.day(),
+                    request.year(),
+                    request.weight()
+            );
+
+            return Optional.of(this.weightUpdateRepository.save(weightUpdate));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public Optional<WeightUpdate> save(WeightUpdate weightUpdate) {
