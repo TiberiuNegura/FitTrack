@@ -1,10 +1,10 @@
 package centurionii.UserService.service;
 
+import centurionii.UserService.dto.WeightUpdateRequest;
 import centurionii.UserService.entity.WeightUpdate;
-import centurionii.WorkoutService.entities.WeightUpdate;
-import centurionii.WorkoutService.repos.WeightUpdateRepository;
-import centurionii.WorkoutService.utils.ObjectMapper;
-import centurionii.WorkoutService.utils.dto.WeightUpdateRequest;
+import centurionii.UserService.repo.WeightUpdateRepository;
+import centurionii.UserService.utils.JwtUtil;
+import centurionii.UserService.utils.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,10 +58,10 @@ public class WeightUpdateService {
         }
     }
 
-    public ResponseEntity<?> getAllUpdatesByUser(HttpSession session) {
-        Object userId = session.getAttribute("userId");
+    public ResponseEntity<?> getAllUpdatesByUser(String authHeader) {
+        long userId = JwtUtil.getUserIdFromJwt(authHeader);
 
-        if (userId == null) {
+        if (userId == -1) {
             return new ResponseEntity<>("Session id of current user not found", HttpStatus.NOT_FOUND);
 
         }

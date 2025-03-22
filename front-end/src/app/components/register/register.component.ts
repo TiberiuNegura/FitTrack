@@ -25,13 +25,13 @@ export class RegisterComponent implements OnInit{
     };
 
     constructor(private registerService: RegisterService, 
-                private userService: HomeService, 
+                private homeService: HomeService, 
                 private router: Router,
                 private authState : AuthStateService) {}
 
     ngOnInit() {
         if(this.authState.getAlreadyLogged())
-            this.userService.logout().subscribe();
+            this.homeService.logout();
     }
 
     onSubmit() {

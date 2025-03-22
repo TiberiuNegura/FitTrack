@@ -22,13 +22,13 @@ export class LoginComponent implements OnInit {
     };
 
     constructor(private loginService: LoginService, 
-                private userService: HomeService, 
+                private homeService: HomeService, 
                 private router: Router,
                 private authState: AuthStateService) {}
 
     ngOnInit() {
         if(this.authState.getAlreadyLogged())
-            this.userService.logout().subscribe();
+            this.homeService.logout();
     }
 
     onSubmit() {

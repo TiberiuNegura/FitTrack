@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable} from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class RegisterService {
-    private readonly apiUrl = 'http://localhost:8080/user/register';
+    private readonly apiUrl = 'http://localhost:8081/user/register';
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     registerUser(userData: {
         firstName: string;
@@ -17,7 +17,13 @@ export class RegisterService {
         bodyWeight: string;
         height: string;
         age: string;
-    }): Observable<any> {
-        return this.http.post(this.apiUrl, userData, {withCredentials: true});
+    }): Observable<{ token: string }> {
+        return this.http.post<{ token: string }>(this.apiUrl, userData).pipe(
+            tap((response) => {
+                if (response.token) {
+                    localStorage.setItem('jwt', response.token);
+                }
+            })
+        );
     }
 }

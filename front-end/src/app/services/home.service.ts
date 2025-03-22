@@ -1,21 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, of, tap } from 'rxjs';
+import { LoginService } from './login.service';
 
 @Injectable({ providedIn: 'root' })
 export class HomeService {
   private baseUrl = 'http://localhost:8080';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private loginService : LoginService) {}
 
-  getUserIdFromSession(): Observable<number> {
-    return this.http.get<{ userId: number }>(`${this.baseUrl}/user/sessionId`, { withCredentials: true }).pipe(
-      map(response => response.userId),
-      catchError((error) => {
-        console.error('Session ID Error:', error); 
-        return of(-1); 
-      })
-    );
+  getUserIdFromSession() {
+    return this.loginService.getUserId();
   }
 
   getWorkoutsByDate(date: string): Observable<any[]> {
@@ -44,8 +39,8 @@ export class HomeService {
     return this.http.delete(`${this.baseUrl}/workout/deleteById?id=${encodeURIComponent(workoutId)}`, {withCredentials: true});
   }
 
-  logout(): Observable<any> {
+  logout() {
     console.log("Logout called");
-    return this.http.delete(`${this.baseUrl}/user/logout`, { withCredentials: true });
+    this.loginService.logout();
   }
 }

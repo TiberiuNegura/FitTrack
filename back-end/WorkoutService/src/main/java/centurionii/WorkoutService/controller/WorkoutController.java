@@ -23,26 +23,26 @@ public class WorkoutController {
     }
 
     @PostMapping("/workout/save")
-    public ResponseEntity<?> saveWorkout(@RequestBody Map<String, Object> body, HttpSession session) {
+    public ResponseEntity<?> saveWorkout(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String authHeader) {
         try {
-            return workoutService.saveWorkout(body, session);
+            return workoutService.saveWorkout(body, authHeader);
         } catch (Exception e) {
             return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);        }
 
     }
 
     @PutMapping("/workout/update")
-    public ResponseEntity<?> updateWorkout(@RequestBody Map<String, Object> body, HttpSession session) {
+    public ResponseEntity<?> updateWorkout(@RequestBody Map<String, Object> body, @RequestHeader("Authorization") String authHeader) {
         try {
-            return workoutService.updateWorkout(body, session);
+            return workoutService.updateWorkout(body, authHeader);
         } catch (Exception e) {
             return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);        }
     }
 
     @GetMapping("/workout/alldate")
-    public ResponseEntity<?> getWorkoutsByDate(@RequestParam("date") String date, HttpSession httpSession) {
+    public ResponseEntity<?> getWorkoutsByDate(@RequestParam("date") String date, @RequestHeader("Authorization") String authHeader) {
         try {
-            return workoutService.getAllWorkoutsByDate(date, httpSession);
+            return workoutService.getAllWorkoutsByDate(date, authHeader);
         } catch (Exception e) {
             return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);        }
     }

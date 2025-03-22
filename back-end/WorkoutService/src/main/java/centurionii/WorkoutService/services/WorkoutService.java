@@ -2,12 +2,11 @@ package centurionii.WorkoutService.services;
 
 import centurionii.WorkoutService.entities.Workout;
 import centurionii.WorkoutService.repos.WorkoutRepository;
-import com.example.demo.model.entities.AppUser;
-import com.example.demo.model.repos.UserRepository;
-import com.example.demo.model.utils.ObjectMapper;
-import com.example.demo.model.utils.ValidationHelpers.MuscleGroups;
-import com.example.demo.model.utils.WorkoutInfo;
-import jakarta.servlet.http.HttpSession;
+import centurionii.WorkoutService.utils.JwtUtil;
+import centurionii.WorkoutService.utils.ObjectMapper;
+import centurionii.WorkoutService.utils.ValidationHelpers.MuscleGroups;
+import centurionii.WorkoutService.utils.WorkoutInfo;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +17,13 @@ import java.util.*;
 @Service
 public class WorkoutService {
     private final WorkoutRepository workoutRepository;
-    private final UserRepository userRepository;
 
     @Autowired
-    public WorkoutService(WorkoutRepository workoutRepository, UserRepository userRepository) {
+    public WorkoutService(WorkoutRepository workoutRepository) {
         this.workoutRepository = workoutRepository;
-        this.userRepository = userRepository;
     }
 
-    public ResponseEntity<?> saveWorkout(Map<String, Object> body, HttpSession session) {
+    public ResponseEntity<?> saveWorkout(Map<String, Object> body, String authHeader) {
         String exerciseName = (String) body.get("exerciseName");
         String muscleGroup = (String) body.get("muscleGroup");
         String date = (String) body.get("date");
@@ -40,31 +37,29 @@ public class WorkoutService {
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        long userId = (Long) session.getAttribute("userId");
+        long userId = getUserIdFromJwt(authHeader);
 
-        Optional<AppUser> foundUser = userRepository.findById(userId);
-
-        if (foundUser.isEmpty()) {
-            return new ResponseEntity<>("Couldn't find user with current session id", HttpStatus.NOT_FOUND);
+        if (userId == -1) {
+            return new ResponseEntity<>("User session id invalid", HttpStatus.NOT_FOUND);
         }
 
-        Workout workout = new Workout(foundUser.get(), muscleGroup, exerciseName, dates[0], dates[1], dates[2], sets);
+        Workout workout = new Workout(userId, muscleGroup, exerciseName, dates[0], dates[1], dates[2], sets);
 
         return ResponseEntity.ok(ObjectMapper.objectToMap(workoutRepository.save(workout)));
     }
 
-    public ResponseEntity<?> getAllWorkoutsByDate(String date, HttpSession httpSession) {
+    public ResponseEntity<?> getAllWorkoutsByDate(String date, String authHeader) {
         int[] dates = Arrays.stream(date.split("-"))
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        long userId = (Long) httpSession.getAttribute("userId");
+        long userId = getUserIdFromJwt(authHeader);
 
-        if (userRepository.findById(userId).isEmpty()) {
-            return new ResponseEntity<>("Couldn't find user with current session id", HttpStatus.NOT_FOUND);
+        if (userId == -1) {
+            return new ResponseEntity<>("User session id invalid", HttpStatus.NOT_FOUND);
         }
 
-        Optional<List<Workout>> foundWorkouts = workoutRepository.findAllByDayAndMonthAndYearAndAppUserId(dates[0], dates[1], dates[2], userId);
+        Optional<List<Workout>> foundWorkouts = workoutRepository.findAllByDayAndMonthAndYearAndUserId(dates[0], dates[1], dates[2], userId);
 
         if (foundWorkouts.isEmpty()) {
             return new ResponseEntity<>("No workouts on this date", HttpStatus.NOT_FOUND);
@@ -89,24 +84,24 @@ public class WorkoutService {
         }
     }
 
-    public ResponseEntity<?> updateWorkout(Map<String, Object> body, HttpSession session) {
-        Long workoutId = body.get("id") != null ? ((Number)body.get("id")).longValue() : null;
+    public ResponseEntity<?> updateWorkout(Map<String, Object> body, String authHeader) {
+        Long workoutId = body.get("id") != null ? ((Number) body.get("id")).longValue() : null;
 
         WorkoutInfo workoutInfo = ObjectMapper.mapReqBodyToWorkoutInfo(body);
 
-        long userId = (Long) session.getAttribute("userId");
+        long userId = getUserIdFromJwt(authHeader);
 
         if (workoutId == null) {
             return new ResponseEntity<>("Null workout id from client", HttpStatus.BAD_REQUEST);
         }
 
-        if (userRepository.findById(userId).isEmpty()) {
-            return new ResponseEntity<>("Couldn't find user with current session id", HttpStatus.NOT_FOUND);
+        if (userId == -1) {
+            return new ResponseEntity<>("User session id invalid", HttpStatus.NOT_FOUND);
         }
 
         Optional<Workout> existingWorkout = workoutRepository.findById(workoutId);
 
-        if (existingWorkout.isEmpty() || existingWorkout.get().getAppUser().getId() != (Long) session.getAttribute("userId")) {
+        if (existingWorkout.isEmpty() || existingWorkout.get().getUserId() != userId) {
             return new ResponseEntity<>("Workout not found or doesn't belong to the current user", HttpStatus.NOT_FOUND);
         }
 
@@ -127,7 +122,7 @@ public class WorkoutService {
 
     public Optional<Workout> findWorkoutByIdAndUserId(Long workoutId, Long userId) {
         try {
-            return workoutRepository.findByIdAndAppUserId(workoutId, userId);
+            return workoutRepository.findByIdAndUserId(workoutId, userId);
         } catch (Exception e) {
             return Optional.empty();
         }
@@ -150,5 +145,14 @@ public class WorkoutService {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    public long getUserIdFromJwt(String authHeader) {
+        String token = authHeader.substring(7);
+        Claims claims = JwtUtil.validateToken(token);
+
+        String userId = claims.getSubject();
+
+        return Long.parseLong(userId);
     }
 }

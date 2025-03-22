@@ -1,7 +1,12 @@
 package centurionii.auth.service;
 
+import centurionii.auth.clients.WeightUpdateServiceClient;
 import centurionii.auth.entity.AppUser;
 import centurionii.auth.repo.AuthRepository;
+import centurionii.auth.utils.JwtUtil;
+import centurionii.auth.utils.dto.WeightUpdateRequest;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.apache.commons.codec.binary.Hex;
@@ -13,21 +18,19 @@ import org.springframework.stereotype.Service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class AuthService {
     private final AuthRepository authRepository;
-    private final WeightUpdateRepository weightUpdateRepository;
-
-    private final WeightUpdateService weightUpdateService;
+    private final WeightUpdateServiceClient weightUpdateServiceClient;
 
     @Autowired
-    AuthService(AuthRepository authRepository, WeightUpdateRepository weightUpdateRepository, WeightUpdateService weightUpdateService) {
+    AuthService(AuthRepository authRepository, WeightUpdateServiceClient weightUpdateServiceClient) {
         this.authRepository = authRepository;
-        this.weightUpdateRepository = weightUpdateRepository;
-        this.weightUpdateService = weightUpdateService;
+        this.weightUpdateServiceClient = weightUpdateServiceClient;
     }
 
     public Optional<AppUser> save(AppUser appUser) {
@@ -40,7 +43,7 @@ public class AuthService {
 
     @Transactional
     public ResponseEntity<?> registerAndUpdateWeight(String firstName, String lastName, String password,
-                                                     Float bodyWeight, Float height, Integer age, HttpSession session) {
+                                                     Float bodyWeight, Float height, Integer age) {
 
         if (firstName == null || lastName == null || password == null || bodyWeight == null || height == null || age == null) {
             return new ResponseEntity<>("Missing required fields", HttpStatus.BAD_REQUEST);
@@ -66,20 +69,27 @@ public class AuthService {
         int currentMonth = currentDate.getMonthValue();
         int currentYear = currentDate.getYear();
 
-        WeightUpdate firstWeight = new WeightUpdate(appUser, currentMonth, currentDay, currentYear, appUser.getBodyWeight());
+        WeightUpdateRequest request = new WeightUpdateRequest(
+                appUser.getId(),
+                appUser.getBodyWeight(),
+                currentMonth, currentDay, currentYear
+        );
 
-        this.weightUpdateRepository.save(firstWeight);
+        this.weightUpdateServiceClient.createInitialWeight(request);
 
-        session.setAttribute("userId", saveResult.get().getId());
+        String jwt = JwtUtil.generateToken(appUser.getId());
 
-        return ResponseEntity.ok(Map.of());
+        Map<String, String> response = new HashMap<>();
+        response.put("token", jwt);
+
+        return ResponseEntity.ok(response);
     }
 
     public Optional<AppUser> findUser(String firstName, String lastName) {
         return authRepository.findUserByFirstNameAndLastName(firstName, lastName);
     }
 
-    public ResponseEntity<?> getLoggedUser(String firstName, String lastName, String password, HttpSession session) {
+    public ResponseEntity<?> getLoggedUser(String firstName, String lastName, String password) {
         if (firstName == null || lastName == null || password == null) {
             return new ResponseEntity<>("Missing required fields", HttpStatus.BAD_REQUEST);
         }
@@ -92,9 +102,12 @@ public class AuthService {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
-        session.setAttribute("userId", result.get().getId());
+        String jwt = JwtUtil.generateToken(result.get().getId());
 
-        return ResponseEntity.ok(Map.of());
+        Map<String, String> response = new HashMap<>();
+        response.put("token", jwt);
+
+        return ResponseEntity.ok(response);
     }
 
     public static String hashPassword(String password) {

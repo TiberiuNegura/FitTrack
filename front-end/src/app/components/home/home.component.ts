@@ -64,10 +64,7 @@ export class HomeComponent implements OnInit {
   }
 
   private checkSession() {
-    this.homeService.getUserIdFromSession().subscribe(userId => {
-      console.log(userId);
-      if (userId === -1) this.router.navigate(['/login']);
-    });
+    if (this.homeService.getUserIdFromSession() === null) this.router.navigate(['/login']);
   }
 
   private loadWorkouts() {
@@ -229,10 +226,7 @@ export class HomeComponent implements OnInit {
   }
 
   logout() {
-    this.homeService.logout().subscribe({
-      next: () => {this.router.navigate(['/login'])},
-      error: (error) => {console.log(error)}
-    });
+    this.homeService.logout();
   }
 
   closeForm() {

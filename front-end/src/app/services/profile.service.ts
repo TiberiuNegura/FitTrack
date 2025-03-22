@@ -8,7 +8,7 @@ import { WeightUpdate } from '../interfaces/weight-update';
   providedIn: 'root'
 })
 export class ProfileService {
-  private baseUrl = 'http://localhost:8080/user';
+  private baseUrl = 'http://localhost:8082/user';
 
   constructor(private http: HttpClient) {}
 

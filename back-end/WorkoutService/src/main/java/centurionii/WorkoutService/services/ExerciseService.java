@@ -2,7 +2,7 @@ package centurionii.WorkoutService.services;
 
 import centurionii.WorkoutService.entities.Exercise;
 import centurionii.WorkoutService.repos.ExerciseRepository;
-import com.example.demo.model.utils.ObjectMapper;
+import centurionii.WorkoutService.utils.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

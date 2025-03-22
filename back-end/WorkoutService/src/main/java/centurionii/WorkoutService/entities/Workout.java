@@ -12,9 +12,7 @@ public class Workout {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private AppUser appUser;
+    private long userId;
 
     private String muscleGroup;
     private String exerciseName;
@@ -28,8 +26,8 @@ public class Workout {
     public Workout() {
 
     }
-    public Workout(AppUser appUser, String muscleGroup, String exerciseName, int day, int month, int year, String sets) {
-        this.appUser = appUser;
+    public Workout(long userId, String muscleGroup, String exerciseName, int day, int month, int year, String sets) {
+        this.userId = userId;
         this.muscleGroup = muscleGroup;
         this.exerciseName = exerciseName;
         this.day = day;

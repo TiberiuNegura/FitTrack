@@ -25,13 +25,4 @@ public class ObjectMapper {
         }
         return map;
     }
-
-    public static WorkoutInfo mapReqBodyToWorkoutInfo(@RequestBody Map<String, Object> body) {
-        String exerciseName = (String) body.get("exerciseName");
-        String muscleGroup = (String) body.get("muscleGroup");
-        String date = (String) body.get("date");
-        String sets = (String) body.get("sets");
-
-        return new WorkoutInfo(exerciseName, muscleGroup, date, sets);
-    }
 }
