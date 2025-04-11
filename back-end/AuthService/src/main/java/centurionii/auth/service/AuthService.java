@@ -78,6 +78,7 @@ public class AuthService {
         this.weightUpdateServiceClient.createInitialWeight(request);
 
         String jwt = JwtUtil.generateToken(appUser.getId());
+        System.out.println(jwt);
 
         Map<String, String> response = new HashMap<>();
         response.put("token", jwt);

@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1q2w3e
+      - POSTGRES_DB=workouthistoryweb
+    ports:
+      - "5432:5432"
+    # Health check to ensure DB is ready
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build: ./AuthService  # build from the AuthService directory
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy   # Wait until DB container passes healthcheck
+    environment:
+      - JWT_SECRET_KEY=oXyGp7w7nMKcx1Q7Ee0kpE9W5P1u2uXZnRzjA4IslbY=
+    # (Application properties inside the image already contain the correct DB URL)
+
+  user-service:
+    build: ./UserService
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - JWT_SECRET_KEY=oXyGp7w7nMKcx1Q7Ee0kpE9W5P1u2uXZnRzjA4IslbY=
+
+  workout-service:
+    build: ./WorkoutService
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - JWT_SECRET_KEY=oXyGp7w7nMKcx1Q7Ee0kpE9W5P1u2uXZnRzjA4IslbY=

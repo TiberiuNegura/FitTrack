@@ -9,10 +9,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@Controller
+@RestController
 public class AuthController {
     private final AuthService authService;
 
@@ -33,6 +36,7 @@ public class AuthController {
 
             return authService.registerAndUpdateWeight(firstName, lastName, password, bodyWeight, height, age);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
