@@ -20,29 +20,35 @@ services:
     build: ./AuthService  # build from the AuthService directory
     ports:
       - "8081:8081"
+      - "5005:5005"
     depends_on:
       postgres:
         condition: service_healthy   # Wait until DB container passes healthcheck
     environment:
       - JWT_SECRET_KEY=oXyGp7w7nMKcx1Q7Ee0kpE9W5P1u2uXZnRzjA4IslbY=
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     # (Application properties inside the image already contain the correct DB URL)
 
   user-service:
     build: ./UserService
     ports:
       - "8082:8082"
+      - "5005:5005"
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       - JWT_SECRET_KEY=oXyGp7w7nMKcx1Q7Ee0kpE9W5P1u2uXZnRzjA4IslbY=
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
 
   workout-service:
     build: ./WorkoutService
     ports:
       - "8080:8080"
+      - "5005:5005"
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       - JWT_SECRET_KEY=oXyGp7w7nMKcx1Q7Ee0kpE9W5P1u2uXZnRzjA4IslbY=
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
