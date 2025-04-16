@@ -1,6 +1,7 @@
 package centurionii.WorkoutService.utils;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -22,10 +23,18 @@ public class JwtUtil {
     public static Claims validateToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return claims;
+        } catch (JwtException e) {
+            // Token is invalid or expired
+            e.printStackTrace();
+            return null;
+        }
     }
 }

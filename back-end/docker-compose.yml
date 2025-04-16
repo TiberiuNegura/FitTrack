@@ -20,7 +20,7 @@ services:
     build: ./AuthService  # build from the AuthService directory
     ports:
       - "8081:8081"
-      - "5005:5005"
+      - "5007:5005"
     depends_on:
       postgres:
         condition: service_healthy   # Wait until DB container passes healthcheck
@@ -33,7 +33,7 @@ services:
     build: ./UserService
     ports:
       - "8082:8082"
-      - "5005:5005"
+      - "5006:5005"
     depends_on:
       postgres:
         condition: service_healthy

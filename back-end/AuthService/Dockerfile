@@ -18,7 +18,7 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Expose AuthService port
-EXPOSE 8081
+EXPOSE 8081 5005
 
 # Entry point to run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "app.jar"]
