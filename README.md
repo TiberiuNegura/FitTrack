@@ -6,6 +6,7 @@ FitTrack is a full-stack microservices application that allows users to register
 
 ## 📦 Project Structure
 
+This project is organized into multiple services and components, each in its own directory, to follow a modular microservices architecture.
 
 ---
 
