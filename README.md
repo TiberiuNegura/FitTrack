@@ -1,6 +1,6 @@
 # FitTrack
 
-Workout History Web is a full-stack microservices application that allows users to register, log in, and track their workout history. It consists of multiple backend services built with **Java Spring Boot**, a **PostgreSQL** database, and an **Angular** frontend, all containerized using **Docker Compose**.
+FitTrack is a full-stack microservices application that allows users to register, log in, and track their workout history. It consists of multiple backend services built with **Java Spring Boot**, a **PostgreSQL** database, and an **Angular** frontend, all containerized using **Docker Compose**.
 
 ---
 
