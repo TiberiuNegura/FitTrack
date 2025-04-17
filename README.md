@@ -37,8 +37,8 @@ Make sure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/workout-history-web.git
-cd workout-history-web
+git clone https://github.com/yourusername/FitTrack.git
+cd FitTrack
 ```
 
 ### 2. Build and run the backend
